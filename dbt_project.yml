@@ -1,0 +1,55 @@
+name: 'salesforce_campaign_funnel'
+version: '1.0.0'
+config-version: 2
+
+profile: 'salesforce_campaign_funnel'
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  salesforce_campaign_funnel:
+    # Staging models - materialized as views for development flexibility
+    staging:
+      +materialized: view
+      +schema: stg_salesforce
+    
+    # Intermediate models - ephemeral for performance
+    intermediate:
+      +materialized: ephemeral
+      +schema: int_salesforce
+    
+    # Marts models - tables with BigQuery optimization
+    marts:
+      +materialized: table
+      +schema: marts_salesforce
+      +partition_by:
+        field: date_day
+        data_type: date
+        granularity: day
+      +cluster_by: ['campaign_id', 'account_id']
+
+vars:
+  # Schema configuration
+  staging_schema_suffix: '_stg_salesforce'
+  intermediate_schema_suffix: '_int_salesforce'
+  marts_schema_suffix: '_marts_salesforce'
+  
+  # Date range for development (adjust as needed)
+  start_date: '2020-01-01'
+  end_date: '2024-12-31'
+  
+  # Currency settings
+  target_currency: 'USD'
+  
+  # Data quality filters
+  exclude_test_campaigns: true
+  exclude_deleted_records: true
