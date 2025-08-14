@@ -1,0 +1,167 @@
+version: 2
+
+models:
+  - name: stg_salesforce__campaigns
+    description: "Cleaned and standardized Salesforce campaigns data"
+    columns:
+      - name: id
+        description: "Unique identifier for the campaign"
+        tests:
+          - not_null
+          - unique
+      
+      - name: name
+        description: "Campaign name"
+        tests:
+          - not_null
+      
+      - name: type
+        description: "Type of campaign (e.g., Email, Advertisement, Conference)"
+        tests:
+          - accepted_values:
+              values: ['Email', 'Advertisement', 'Banner Ads', 'Direct Mail', 'Telemarketing', 'Public Relations', 'Partners', 'Referral Program', 'Trade Show', 'Web', 'Webinar', 'Content Syndication', 'Social', 'Conference', 'Other']
+      
+      - name: status
+        description: "Current status of the campaign"
+        tests:
+          - accepted_values:
+              values: ['Planned', 'In Progress', 'Completed', 'Aborted', 'On Hold']
+      
+      - name: description
+        description: "Campaign description"
+      
+      - name: created_at
+        description: "When the campaign was created"
+        tests:
+          - not_null
+      
+      - name: start_date
+        description: "Campaign start date"
+      
+      - name: end_date
+        description: "Campaign end date"
+      
+      - name: is_active
+        description: "Whether the campaign is currently active"
+      
+      - name: actual_cost
+        description: "Actual cost spent on the campaign"
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+              config:
+                where: "actual_cost is not null"
+      
+      - name: budgeted_cost
+        description: "Budgeted cost for the campaign"
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+              config:
+                where: "budgeted_cost is not null"
+      
+      - name: expected_revenue
+        description: "Expected revenue from the campaign"
+      
+      - name: campaign_duration_days
+        description: "Duration of the campaign in days"
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+              config:
+                where: "campaign_duration_days is not null"
+      
+      - name: owner_id
+        description: "ID of the campaign owner"
+      
+      - name: parent_id
+        description: "ID of the parent campaign if this is a sub-campaign"
+
+  - name: stg_salesforce__leads
+    description: "Cleaned and standardized Salesforce leads data"
+    columns:
+      - name: id
+        description: "Unique identifier for the lead"
+        tests:
+          - not_null
+          - unique
+      
+      - name: first_name
+        description: "Lead's first name"
+      
+      - name: last_name
+        description: "Lead's last name"
+      
+      - name: full_name
+        description: "Lead's full name"
+      
+      - name: email
+        description: "Lead's email address"
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "like '%@%'"
+              config:
+                where: "email is not null"
+      
+      - name: company
+        description: "Lead's company name"
+      
+      - name: title
+        description: "Lead's job title"
+      
+      - name: phone
+        description: "Lead's phone number"
+      
+      - name: status
+        description: "Current status of the lead"
+        tests:
+          - accepted_values:
+              values: ['Open - Not Contacted', 'Working - Contacted', 'Closed - Converted', 'Closed - Not Converted', 'Nurturing', 'Qualified', 'Unqualified']
+      
+      - name: source
+        description: "Source where the lead was generated"
+      
+      - name: rating
+        description: "Lead quality rating"
+        tests:
+          - accepted_values:
+              values: ['Hot', 'Warm', 'Cold']
+      
+      - name: created_at
+        description: "When the lead was created"
+        tests:
+          - not_null
+      
+      - name: converted_date
+        description: "When the lead was converted"
+      
+      - name: converted_contact_id
+        description: "ID of the contact created from lead conversion"
+      
+      - name: converted_opportunity_id
+        description: "ID of the opportunity created from lead conversion"
+      
+      - name: converted_account_id
+        description: "ID of the account created from lead conversion"
+      
+      - name: is_converted
+        description: "Whether the lead has been converted"
+      
+      - name: days_to_conversion
+        description: "Number of days from lead creation to conversion"
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+              config:
+                where: "days_to_conversion is not null"
+      
+      - name: owner_id
+        description: "ID of the lead owner"
+
+    tests:
+      - dbt_utils.expression_is_true:
+          name: converted_leads_must_have_converted_date
+          expression: "converted_date is not null"
+          config:
+            where: "is_converted = true"
