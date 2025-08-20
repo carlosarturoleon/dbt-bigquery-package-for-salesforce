@@ -14,11 +14,7 @@ transformed as (
         campaign_description as description,
         
         -- Convert STRING date fields to proper types
-        case 
-            when campaign_created_date is not null and campaign_created_date != ''
-            then parse_timestamp('%Y-%m-%d %H:%M:%S', campaign_created_date)
-            else null
-        end as created_at,
+        safe_cast(campaign_created_date as timestamp) as created_at,
         
         case 
             when campaign_start_date is not null and campaign_start_date != ''
@@ -72,7 +68,7 @@ transformed as (
         campaign_parent_id as parent_id,
 
     from source
-    where campaign_is_deleted = 'false'
+    where lower(campaign_is_deleted) = 'false'
 )
 
 select * from transformed

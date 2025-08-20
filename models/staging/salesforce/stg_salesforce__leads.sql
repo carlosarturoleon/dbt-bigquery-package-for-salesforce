@@ -22,11 +22,7 @@ transformed as (
         lead_rating as rating,
         
         -- Convert STRING date fields to proper types
-        case 
-            when lead_created_date is not null and lead_created_date != ''
-            then parse_timestamp('%Y-%m-%d %H:%M:%S', lead_created_date)
-            else null
-        end as created_at,
+        safe_cast(lead_created_date as timestamp) as created_at,
         
         -- Conversion tracking fields
         lead_converted_date as converted_date,
@@ -35,19 +31,15 @@ transformed as (
         lead_converted_account_id as converted_account_id,
         
         -- Convert string boolean to actual boolean
-        case 
-            when lower(lead_is_converted) = 'true' then true
-            when lower(lead_is_converted) = 'false' then false
-            else null
-        end as is_converted,
+        safe_cast(lead_is_converted as boolean) as is_converted,
         
         -- Calculate days_to_conversion
         case 
-            when lead_converted_date is not null 
-                and lead_created_date is not null and lead_created_date != ''
+            when safe_cast(lead_converted_date as date) is not null 
+                and safe_cast(lead_created_date as timestamp) is not null
             then date_diff(
-                date(lead_converted_date),
-                date(parse_timestamp('%Y-%m-%d %H:%M:%S', lead_created_date)),
+                safe_cast(lead_converted_date as date),
+                date(safe_cast(lead_created_date as timestamp)),
                 day
             )
             else null
@@ -68,7 +60,7 @@ transformed as (
         
 
     from source
-    where lead_is_deleted = 'false'
+    where lower(lead_is_deleted) = 'false'
 )
 
 select * from transformed
