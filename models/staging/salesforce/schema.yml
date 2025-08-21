@@ -19,13 +19,13 @@ models:
         description: "Type of campaign (e.g., Email, Advertisement, Conference)"
         tests:
           - accepted_values:
-              values: ['Email', 'Advertisement', 'Banner Ads', 'Direct Mail', 'Telemarketing', 'Public Relations', 'Partners', 'Referral Program', 'Trade Show', 'Web', 'Webinar', 'Content Syndication', 'Social', 'Conference', 'Other']
+              values: "{{ var('salesforce_campaign_types') }}"
       
       - name: status
         description: "Current status of the campaign"
         tests:
           - accepted_values:
-              values: ['Planned', 'In Progress', 'Completed', 'Aborted', 'On Hold']
+              values: "{{ var('salesforce_campaign_statuses') }}"
       
       - name: description
         description: "Campaign description"
@@ -117,7 +117,7 @@ models:
         description: "Current status of the lead"
         tests:
           - accepted_values:
-              values: ['Open - Not Contacted', 'Working - Contacted', 'Closed - Converted', 'Closed - Not Converted', 'Nurturing', 'Qualified', 'Unqualified']
+              values: "{{ var('salesforce_lead_statuses') }}"
       
       - name: source
         description: "Source where the lead was generated"
@@ -126,7 +126,7 @@ models:
         description: "Lead quality rating"
         tests:
           - accepted_values:
-              values: ['Hot', 'Warm', 'Cold']
+              values: "{{ var('salesforce_lead_ratings') }}"
       
       - name: created_at
         description: "When the lead was created"
@@ -242,13 +242,13 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ['Lead', 'Contact']
+              values: "{{ var('salesforce_campaign_member_types') }}"
       
       - name: status
         description: "Campaign member status"
         tests:
           - accepted_values:
-              values: ['Sent', 'Responded', 'Clicked', 'Opened', 'Bounced', 'Unsubscribed']
+              values: "{{ var('salesforce_campaign_member_statuses') }}"
       
       - name: has_responded
         description: "Whether the campaign member has responded"
@@ -316,7 +316,7 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ['Prospecting', 'Qualification', 'Needs Analysis', 'Value Proposition', 'Id. Decision Makers', 'Perception Analysis', 'Proposal/Price Quote', 'Negotiation/Review', 'Closed Won', 'Closed Lost']
+              values: "{{ var('salesforce_opportunity_stages') }}"
       
       - name: is_closed
         description: "Whether the opportunity is closed"
