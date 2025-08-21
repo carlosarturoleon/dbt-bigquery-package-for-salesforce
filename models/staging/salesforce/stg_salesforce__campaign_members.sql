@@ -6,78 +6,56 @@ with source as (
 
 transformed as (
     select
-        campaignmember_id as id,
-        campaignmember_campaign_id as campaign_id,
-        campaignmember_lead_id as lead_id,
-        campaignmember_contact_id as contact_id,
-        campaignmember_lead_or_contact_id as lead_or_contact_id,
+        {{ var('campaign_members_id_field', 'campaignmember_id') }} as id,
+        {{ var('campaign_members_campaign_id_field', 'campaignmember_campaign_id') }} as campaign_id,
+        {{ var('campaign_members_lead_id_field', 'campaignmember_lead_id') }} as lead_id,
+        {{ var('campaign_members_contact_id_field', 'campaignmember_contact_id') }} as contact_id,
+        {{ var('campaign_members_lead_or_contact_id_field', 'campaignmember_lead_or_contact_id') }} as lead_or_contact_id,
         
         -- Determine member_type as 'Lead' or 'Contact' based on which ID is populated
         case 
-            when campaignmember_lead_id is not null then 'Lead'
-            when campaignmember_contact_id is not null then 'Contact'
-            else campaignmember_type
+            when {{ var('campaign_members_lead_id_field', 'campaignmember_lead_id') }} is not null then 'Lead'
+            when {{ var('campaign_members_contact_id_field', 'campaignmember_contact_id') }} is not null then 'Contact'
+            else {{ var('campaign_members_type_field', 'campaignmember_type') }}
         end as member_type,
         
-        campaignmember_first_name as first_name,
-        campaignmember_last_name as last_name,
-        campaignmember_name as full_name,
-        campaignmember_salutation as salutation,
+        {{ var('campaign_members_first_name_field', 'campaignmember_first_name') }} as first_name,
+        {{ var('campaign_members_last_name_field', 'campaignmember_last_name') }} as last_name,
+        {{ var('campaign_members_name_field', 'campaignmember_name') }} as full_name,
+        {{ var('campaign_members_salutation_field', 'campaignmember_salutation') }} as salutation,
         
-        campaignmember_company_or_account as company_or_account,
-        campaignmember_title as title,
-        campaignmember_phone as phone,
-        campaignmember_fax as fax,
-        campaignmember_lead_source as lead_source,
-        campaignmember_description as description,
+        {{ var('campaign_members_company_or_account_field', 'campaignmember_company_or_account') }} as company_or_account,
+        {{ var('campaign_members_title_field', 'campaignmember_title') }} as title,
+        {{ var('campaign_members_phone_field', 'campaignmember_phone') }} as phone,
+        {{ var('campaign_members_fax_field', 'campaignmember_fax') }} as fax,
+        {{ var('campaign_members_lead_source_field', 'campaignmember_lead_source') }} as lead_source,
+        {{ var('campaign_members_description_field', 'campaignmember_description') }} as description,
         
-        -- Date fields (already TIMESTAMP in source)
-        campaignmember_createddate as created_at,
-        campaignmember_lastmodifieddate as last_modified_at,
-        campaignmember_first_responded_date as first_responded_date,
+        -- Date fields using utility macros
+        {{ safe_date_parse(var('campaign_members_created_date_field', 'campaignmember_createddate'), 'timestamp') }} as created_at,
+        {{ safe_date_parse(var('campaign_members_last_modified_date_field', 'campaignmember_lastmodifieddate'), 'timestamp') }} as last_modified_at,
+        {{ safe_date_parse(var('campaign_members_first_responded_date_field', 'campaignmember_first_responded_date'), 'timestamp') }} as first_responded_date,
         
-        -- Convert string boolean to actual boolean for response tracking
-        case 
-            when lower(campaignmember_has_responded) = 'true' then true
-            when lower(campaignmember_has_responded) = 'false' then false
-            else null
-        end as has_responded,
+        -- Convert string boolean to actual boolean using utility macro
+        {{ clean_boolean(var('campaign_members_has_responded_field', 'campaignmember_has_responded')) }} as has_responded,
         
-        campaignmember_status as status,
+        {{ var('campaign_members_status_field', 'campaignmember_status') }} as status,
         
-        -- Calculate days_to_response from campaign member creation to response
-        case 
-            when campaignmember_first_responded_date is not null 
-                and campaignmember_createddate is not null
-            then date_diff(
-                date(campaignmember_first_responded_date),
-                date(campaignmember_createddate),
-                day
-            )
-            else null
-        end as days_to_response,
+        -- Calculate days_to_response using utility macro
+        {{ calculate_days_between(var('campaign_members_created_date_field', 'campaignmember_createddate'), var('campaign_members_first_responded_date_field', 'campaignmember_first_responded_date')) }} as days_to_response,
         
         -- Address fields
-        campaignmember_street as street,
-        campaignmember_postal_code as postal_code,
-        campaignmember_state as state,
-        campaignmember_country as country,
+        {{ var('campaign_members_street_field', 'campaignmember_street') }} as street,
+        {{ var('campaign_members_postal_code_field', 'campaignmember_postal_code') }} as postal_code,
+        {{ var('campaign_members_state_field', 'campaignmember_state') }} as state,
+        {{ var('campaign_members_country_field', 'campaignmember_country') }} as country,
         
-        -- Convert string boolean fields
-        case 
-            when lower(campaignmember_do_not_call) = 'true' then true
-            when lower(campaignmember_do_not_call) = 'false' then false
-            else null
-        end as do_not_call,
-        
-        case 
-            when lower(campaignmember_has_opted_out_of_fax) = 'true' then true
-            when lower(campaignmember_has_opted_out_of_fax) = 'false' then false
-            else null
-        end as has_opted_out_of_fax,
+        -- Convert string boolean fields using utility macro
+        {{ clean_boolean(var('campaign_members_do_not_call_field', 'campaignmember_do_not_call')) }} as do_not_call,
+        {{ clean_boolean(var('campaign_members_has_opted_out_of_fax_field', 'campaignmember_has_opted_out_of_fax')) }} as has_opted_out_of_fax,
         
         -- Owner tracking
-        campaignmember_lead_or_contact_owner_id as lead_or_contact_owner_id
+        {{ var('campaign_members_lead_or_contact_owner_id_field', 'campaignmember_lead_or_contact_owner_id') }} as lead_or_contact_owner_id
 
     from source
 )
