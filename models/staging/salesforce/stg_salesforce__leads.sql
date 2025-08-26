@@ -25,15 +25,16 @@ transformed as (
         {{ safe_date_parse(var('leads_created_date_field', 'lead_created_date')) }} as created_at,
         
         -- Conversion tracking fields
-        {{ safe_date_parse(var('leads_converted_date_field', 'lead_converted_date'), 'date') }} as converted_date,
+        -- Replace converted_date parsing with direct SAFE_CAST:
+        safe_cast({{ var('leads_converted_date_field', 'lead_converted_date') }} as timestamp) as converted_date,
         {{ var('leads_converted_contact_id_field', 'lead_converted_contact_id') }} as converted_contact_id,
         {{ var('leads_converted_opportunity_id_field', 'lead_converted_opportunity_id') }} as converted_opportunity_id,
         {{ var('leads_converted_account_id_field', 'lead_converted_account_id') }} as converted_account_id,
         
         -- Convert string boolean to actual boolean using utility macro
         case 
-            when {{ clean_boolean(var('leads_is_converted_field', 'lead_is_converted')) }} = true 
-                and {{ safe_date_parse(var('leads_converted_date_field', 'lead_converted_date'), 'date') }} is not null
+            when {{ var('leads_converted_contact_id_field', 'lead_converted_contact_id') }} is not null
+              or lower({{ var('leads_status_field', 'lead_status') }}) = 'closed - converted'
             then true 
             else false 
         end as is_converted,

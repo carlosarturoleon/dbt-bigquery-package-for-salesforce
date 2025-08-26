@@ -22,9 +22,9 @@ models:
       +materialized: view
       +schema: stg_salesforce
     
-    # Intermediate models - ephemeral for performance
+    # Intermediate models - views for development flexibility and debugging
     intermediate:
-      +materialized: ephemeral
+      +materialized: view
       +schema: int_salesforce
     
     # Marts models - tables with BigQuery optimization
