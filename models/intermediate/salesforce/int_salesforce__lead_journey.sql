@@ -232,9 +232,11 @@ final as (
         first_touch_campaign_id,
         first_touch_campaign_name,
         first_touch_campaign_type,
+        first_touch_responded,
         last_touch_campaign_id,
         last_touch_campaign_name,
         last_touch_campaign_type,
+        last_touch_responded,
         total_campaign_touches,
         
         -- Attribution credit calculation for multi-touch attribution
@@ -279,12 +281,12 @@ final as (
         
         -- Journey completeness score (0-1)
         round(
-            (case when lead_created_at is not null then 0.167 else 0 end +
-             case when first_campaign_touch_at is not null then 0.167 else 0 end +
-             case when first_touch_responded = true then 0.167 else 0 end +
-             case when is_converted = true then 0.167 else 0 end +
-             case when opportunity_created_at is not null then 0.167 else 0 end +
-             case when opportunity_is_closed = true then 0.165 else 0 end), 3
+            (case when lead_created_at is not null then 1.0/6 else 0 end +
+             case when first_campaign_touch_at is not null then 1.0/6 else 0 end +
+             case when first_touch_responded = true then 1.0/6 else 0 end +
+             case when is_converted = true then 1.0/6 else 0 end +
+             case when opportunity_created_at is not null then 1.0/6 else 0 end +
+             case when opportunity_is_closed = true then 1.0/6 else 0 end), 3
         ) as journey_completeness_score
         
     from lead_journey_base

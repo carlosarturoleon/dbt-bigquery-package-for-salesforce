@@ -109,7 +109,8 @@ transformed as (
         {{ var('opportunities_tracking_number_field', 'opportunity_wsai__trackingnumber__c') }} as tracking_number
 
     from source
-    where {{ var('opportunities_is_deleted_field', 'opportunity_is_deleted') }} = 'false'
+    where ({{ var('opportunities_is_deleted_field', 'opportunity_is_deleted') }} = 'false' 
+       OR {{ var('opportunities_is_deleted_field', 'opportunity_is_deleted') }} IS NULL)
 )
 
 select * from transformed
