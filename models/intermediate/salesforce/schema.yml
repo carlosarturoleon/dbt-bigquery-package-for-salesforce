@@ -565,3 +565,81 @@ models:
           expression: "journey_completeness_score = 1.0"
           config:
             where: "opportunity_is_won = true"
+
+  - name: int_salesforce__contact_touchpoints
+    description: "Contact touchpoints tracking campaign interactions and engagement sequence"
+    columns:
+      - name: contact_id
+        description: "Unique identifier for the contact"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_salesforce__contacts')
+              field: id
+      
+      - name: campaign_id
+        description: "Unique identifier for the campaign"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_salesforce__campaigns')
+              field: id
+      
+      - name: campaign_name
+        description: "Name of the campaign"
+      
+      - name: campaign_type
+        description: "Type of campaign (e.g., Email, Advertisement, Conference)"
+      
+      - name: has_responded
+        description: "Whether the contact has responded to the campaign"
+      
+      - name: first_responded_date
+        description: "Date when the contact first responded to the campaign"
+      
+      - name: touchpoint_date
+        description: "Date when the touchpoint occurred (campaign member created)"
+        tests:
+          - not_null
+      
+      - name: touchpoint_sequence
+        description: "Sequential number of this touchpoint for the contact (1, 2, 3, etc.)"
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 1"
+      
+      - name: total_touchpoints
+        description: "Total number of touchpoints for this contact across all campaigns"
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 1"
+      
+      - name: days_since_last_touch
+        description: "Number of days since the previous touchpoint for this contact (0 for first touchpoint)"
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+
+    tests:
+      
+      # Ensure touchpoint_sequence doesn't exceed total_touchpoints
+      - dbt_utils.expression_is_true:
+          name: touchpoint_sequence_not_greater_than_total
+          expression: "touchpoint_sequence <= total_touchpoints"
+      
+      # Ensure first touchpoint has days_since_last_touch = 0
+      - dbt_utils.expression_is_true:
+          name: first_touchpoint_has_zero_days_since_last
+          expression: "days_since_last_touch = 0"
+          config:
+            where: "touchpoint_sequence = 1"
+      
+      # Ensure subsequent touchpoints have days_since_last_touch > 0 (unless same day)
+      - dbt_utils.expression_is_true:
+          name: subsequent_touchpoints_have_positive_days_since_last
+          expression: "days_since_last_touch >= 0"
+          config:
+            where: "touchpoint_sequence > 1"
