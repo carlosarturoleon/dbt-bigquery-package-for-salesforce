@@ -37,7 +37,11 @@ transformed as (
         {{ safe_date_parse(var('campaign_members_first_responded_date_field', 'campaignmember_first_responded_date'), 'timestamp') }} as first_responded_date,
         
         -- Convert string boolean to actual boolean using utility macro
-        {{ clean_boolean(var('campaign_members_has_responded_field', 'campaignmember_has_responded')) }} as has_responded,
+        -- Ensure has_responded is false if first_responded_date is null
+        case 
+            when {{ safe_date_parse(var('campaign_members_first_responded_date_field', 'campaignmember_first_responded_date'), 'timestamp') }} is null then false
+            else {{ clean_boolean(var('campaign_members_has_responded_field', 'campaignmember_has_responded')) }}
+        end as has_responded,
         
         {{ var('campaign_members_status_field', 'campaignmember_status') }} as status,
         
@@ -60,4 +64,7 @@ transformed as (
     from source
 )
 
-select * from transformed
+-- Filter out records with orphaned campaign_id references
+select t.* 
+from transformed t
+where t.campaign_id in (select id from {{ ref('stg_salesforce__campaigns') }})
