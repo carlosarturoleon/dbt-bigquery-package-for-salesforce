@@ -280,16 +280,22 @@ final as (
         end as total_journey_days,
         
         -- Journey completeness score (0-1)
-        round(
-            (case when lead_created_at is not null then 1.0/6 else 0 end +
-             case when first_campaign_touch_at is not null then 1.0/6 else 0 end +
-             case when first_touch_responded = true then 1.0/6 else 0 end +
-             case when is_converted = true then 1.0/6 else 0 end +
-             case when opportunity_created_at is not null then 1.0/6 else 0 end +
-             case when opportunity_is_closed = true then 1.0/6 else 0 end), 3
-        ) as journey_completeness_score
+        case
+            when opportunity_is_won = true then 1.0
+            else round(
+                (case when lead_created_at is not null then 1.0/6 else 0 end +
+                case when first_campaign_touch_at is not null then 1.0/6 else 0 end +
+                case when first_touch_responded = true then 1.0/6 else 0 end +
+                case when is_converted = true then 1.0/6 else 0 end +
+                case when opportunity_created_at is not null then 1.0/6 else 0 end +
+                case when opportunity_is_closed = true then 1.0/6 else 0 end), 3
+            )
+        end as journey_completeness_score
         
     from lead_journey_base
+    where 
+        -- Exclude leads with orphaned converted_contact_id references
+        (converted_contact_id is null or (converted_contact_id is not null and contact_first_name is not null))
 )
 
 select * from final
