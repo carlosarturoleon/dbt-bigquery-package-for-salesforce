@@ -188,7 +188,7 @@ Analytics ready final tables optimized for:
 | `salesforce__campaign_lead_funnel` | **Complete funnel analysis** |
 | `salesforce__campaign_attribution_summary` | **Multi-touch attribution reporting** |
 
-🛠 How to use this dbt package
+## 🛠 How to use this dbt package
 
 ### Configure your dbt_project.yml:
 ```yaml
