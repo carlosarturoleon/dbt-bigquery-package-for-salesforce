@@ -5,7 +5,8 @@ A production-ready dbt package that transforms raw Salesforce data integrated wi
 You can find a complete list of [available Salesforce fields here](https://windsor.ai/data-field/salesforce/).
 
 
-🚀 Features of this dbt package:
+## 🚀 Features of this dbt package:
+
 - **Multi-level data modeling**: Structured models for campaigns, leads, contacts, and opportunities
 - **Campaign funnel analytics**: Complete lead → contact → opportunity attribution tracking
 - **Business KPIs out of the box**: Pre-calculated metrics like conversion rates, campaign ROI, and lead progression timing
@@ -26,7 +27,8 @@ This package transforms raw Salesforce data into clean, analytics ready tables m
 - **Executive dashboards**: Ready to use models for business intelligence
 - **Data quality assurance**: Built in validation and testing
 
-⚙️ Prerequisites:
+## ⚙️ Prerequisites:
+
 Before using this package, you have to integrate Salesforce data into BigQuery using the [Windsor.ai connector](https://windsor.ai/connect/salesforce-google-bigquery-integration/) to ensure the schema matches the expected format:
 
 1. [Sign up](https://onboard.windsor.ai/) for Windsor.ai's free trial.
@@ -34,7 +36,10 @@ Before using this package, you have to integrate Salesforce data into BigQuery u
 3. Choose BigQuery as a data destination.
 4. Create and run a destination task for each of the 5 required tables by selecting specific fields. You can use the Report Presets dropdown to automatically select the necessary fields for each model (campaigns, leads, contacts, campaign_members, opportunities).
 
-✅ Required BigQuery tables
+![Report Presets Example](analysis/docs/windsor_report_presets.png)
+
+## ✅ Required BigQuery tables
+
 These tables must be created with the field structure defined in the sources.yml file:
 
 **campaigns**
