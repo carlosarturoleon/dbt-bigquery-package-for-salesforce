@@ -1,8 +1,20 @@
-# dbt Salesforce Campaign Funnel
+# dbt-BigQuery Package for Salesforce Campaign Funnel Data
 
-**A production-ready dbt package that transforms raw Salesforce data into campaign funnel analytics for BigQuery.**
+A production-ready dbt package that transforms raw Salesforce data integrated with [Windsor.ai](https://windsor.ai/) into clean, analytics ready tables in BigQuery following standardized architecture patterns.
 
-Transform your Salesforce campaign data into actionable marketing intelligence with complete lead → contact → opportunity attribution tracking.
+You can find a complete list of [available Salesforce fields here](https://windsor.ai/data-field/salesforce/).
+
+
+🚀 Features of this dbt package:
+- **Multi-level data modeling**: Structured models for campaigns, leads, contacts, and opportunities
+- **Campaign funnel analytics**: Complete lead → contact → opportunity attribution tracking
+- **Business KPIs out of the box**: Pre-calculated metrics like conversion rates, campaign ROI, and lead progression timing
+- **Reusable macros**: Modular macros for consistent metric calculation and data transformation
+- **Custom tests**: Built-in tests to ensure data quality and prevent duplicates
+- **Type safety**: Safe and consistent casting of strings to numeric types using safe_cast
+- **Performance optimized**: Designed for BigQuery efficiency with native data types and filter logic
+- **Built for Windsor.ai**: Tailored to Windsor.ai's Salesforce schema and sync behavior
+- **Executive dashboards**: Ready-to-use models for business intelligence
 
 ## What does this dbt package do?
 
@@ -14,13 +26,46 @@ This package transforms raw Salesforce data into clean, analytics ready tables m
 - **Executive dashboards**: Ready to use models for business intelligence
 - **Data quality assurance**: Built in validation and testing
 
+⚙️ Prerequisites:
+Before using this package, you have to integrate Salesforce data into BigQuery using the [Windsor.ai connector](https://windsor.ai/connect/salesforce-google-bigquery-integration/) to ensure the schema matches the expected format:
+
+1. [Sign up](https://onboard.windsor.ai/) for Windsor.ai's free trial.
+2. Connect your Salesforce account(s).
+3. Choose BigQuery as a data destination.
+4. Create and run a destination task for each of the 5 required tables by selecting specific fields. You can use the Report Presets dropdown to automatically select the necessary fields for each model (campaigns, leads, contacts, campaign_members, opportunities).
+
+✅ Required BigQuery tables
+These tables must be created with the field structure defined in the sources.yml file:
+
+**campaigns**
+- Campaign-level info such as names, types, status, and budgets
+- Key fields: id, name, type, status, start_date, end_date, budgeted_cost, actual_cost, is_active
+
+**leads**
+- Lead records with contact information and source tracking
+- Key fields: id, email, first_name, last_name, company, status, lead_source, created_date, converted_date, converted_contact_id, converted_opportunity_id
+
+**contacts**
+- Contact master data with account relationships
+- Key fields: id, email, first_name, last_name, account_id, created_date, lead_source
+
+**campaign_members**
+- Campaign membership associations linking campaigns to leads/contacts
+- Key fields: id, campaign_id, lead_id, contact_id, status, first_responded_date, created_date
+
+**opportunities**
+- Sales opportunity pipeline data with campaign attribution
+- Key fields: id, name, account_id, amount, stage_name, close_date, campaign_id, created_date, is_closed, is_won
+
+Windsor.ai will stream your Salesforce data to your BigQuery project in minutes. After verifying that the data is present, you're ready to start transforming it using this dbt package.
+
 ## 📋 Requirements
 
 To use this dbt package, you must have the following:
 
 - **dbt Core** >= 1.0.0
 - **BigQuery** data warehouse (currently supported)
-- **Salesforce source data** synced to your data warehouse
+- **Salesforce source data** synced to your data warehouse via Windsor.ai
 - The following source tables available in your BigQuery project:
   - `campaigns`
   - `leads` 
@@ -138,30 +183,86 @@ Analytics ready final tables optimized for:
 | `salesforce__campaign_lead_funnel` | **Complete funnel analysis** |
 | `salesforce__campaign_attribution_summary` | **Multi-touch attribution reporting** |
 
+🛠 How to use this dbt package
+
+### Configure your dbt_project.yml:
+```yaml
+vars:  
+  # Date range for processing (adjust as needed)
+  start_date: '2020-01-01'
+  end_date: '2024-12-31'
+  
+  # Currency settings
+  target_currency: 'USD'
+  
+  # Data quality filters
+  exclude_test_campaigns: true
+  exclude_deleted_records: true
+```
+
+Make sure these source tables are available in your BigQuery project:
+- campaigns
+- leads
+- contacts
+- campaign_members
+- opportunities
+
+Run the models:
+```bash
+# Run all models  
+dbt run
+
+# Run specific layers  
+dbt run --select +stg_salesforce    # Staging only  
+dbt run --select +int_salesforce    # Staging + Intermediate  
+dbt run --select +salesforce        # All models
+
+# Run tests  
+dbt test
+```
+
 ## ⚙️ Configuration Options
 
 ### Custom Field Mapping
 
 Adapt to your Salesforce org schema by overriding field mappings in `dbt_project.yml`:
 
-```
-
+```yaml
 vars:
-
 # Campaign field mappings
-
-campaigns_id_field: 'Id'
-campaigns_name_field: 'Name'
-campaigns_type_field: 'Type'
-campaigns_status_field: 'Status'
+campaigns_id_field: 'campaign_id'
+campaigns_name_field: 'campaign_name'
+campaigns_type_field: 'campaign_type'
+campaigns_status_field: 'campaign_status'
+campaigns_actual_cost_field: 'campaign_actual_cost'
+campaigns_budgeted_cost_field: 'campaign_budgeted_cost'
 
 # Lead field mappings
+leads_id_field: 'lead_id'
+leads_email_field: 'lead_email'
+leads_status_field: 'lead_status'
+leads_source_field: 'lead_lead_source'
+leads_converted_date_field: 'lead_converted_date'
+leads_converted_contact_id_field: 'lead_converted_contact_id'
 
-leads_id_field: 'Id'
-leads_email_field: 'Email'
-leads_status_field: 'Status'
-leads_source_field: 'LeadSource'
+# Contact field mappings  
+contacts_id_field: 'contact_id'
+contacts_email_field: 'contact_email'
+contacts_account_id_field: 'contact_accountid'
+contacts_created_date_field: 'contact_createddate'
 
+# Campaign Member field mappings
+campaign_members_id_field: 'campaignmember_id'
+campaign_members_campaign_id_field: 'campaignmember_campaign_id'
+campaign_members_lead_id_field: 'campaignmember_lead_id'
+campaign_members_contact_id_field: 'campaignmember_contact_id'
+
+# Opportunity field mappings
+opportunities_id_field: 'opportunity_id'
+opportunities_name_field: 'opportunity_name'
+opportunities_amount_field: 'opportunity_amount'
+opportunities_stage_name_field: 'opportunity_stage_name'
+opportunities_campaign_id_field: 'opportunity_campaign_id'
 ```
 
 ### Picklist Value Configuration
