@@ -71,7 +71,7 @@ Add to your `packages.yml`:
 
 packages:
 
-- git: "https://github.com/carlosarturoleon/dbt-salesforce-campaign-funnel.git"
+- git: "https://github.com/windsor-ai/dbt-bigquery-package-for-salesforce.git"
 revision: main
 
 ```
