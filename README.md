@@ -78,9 +78,9 @@ To use this dbt package, you must have the following:
   - `campaign_members`
   - `opportunities`
 
-## 🚀 Quick Start
+## 🚀 Quick start
 
-### Step 1: Install the Package
+### Step 1: install the package
 
 Add to your `packages.yml`:
 
@@ -93,7 +93,7 @@ revision: main
 
 ```
 
-### Step 2: Install Dependencies
+### Step 2: install dependencies
 
 ```
 
@@ -101,7 +101,7 @@ dbt deps
 
 ```
 
-### Step 3: Configure Source Tables
+### Step 3: configure source tables
 
 Define your Salesforce source tables in `models/sources.yml`:
 
@@ -127,7 +127,7 @@ description: "Sales opportunities data"
 
 ```
 
-### Step 4: Run the Models
+### Step 4: run the models
 
 ```
 
@@ -148,32 +148,32 @@ dbt test
 
 ```
 
-## 🏗️ Package Architecture
+## 🏗️ Package architecture
 
 This package follows dbt best practices with a three layer architecture:
 
-### **Staging Models** (`stg_salesforce__*`)
+### **Staging models** (`stg_salesforce__*`)
 Clean and standardize raw Salesforce data with:
 - Data type standardization
 - Consistent field naming
 - Basic data validation
 - Null handling
 
-### **Intermediate Models** (`int_salesforce__*`)  
+### **Intermediate models** (`int_salesforce__*`)  
 Business logic and metric calculations including:
 - Lead journey progression tracking
 - Campaign performance aggregations
 - Attribution calculations
 - Conversion timing analysis
 
-### **Marts Models** (`salesforce__*`)
+### **Marts models** (`salesforce__*`)
 Analytics ready final tables optimized for:
 - Executive reporting
 - Dashboard integration
 - BigQuery performance (partitioned/clustered)
 - Business user consumption
 
-## 📊 Models Reference
+## 📊 Models reference
 
 | **Model** | **Description** |
 |-----------|-----------------|
@@ -226,9 +226,9 @@ dbt run --select +salesforce        # All models
 dbt test
 ```
 
-## ⚙️ Configuration Options
+## ⚙️ Configuration options
 
-### Custom Field Mapping
+### Custom field mapping
 
 Adapt to your Salesforce org schema by overriding field mappings in `dbt_project.yml`:
 
@@ -270,7 +270,7 @@ opportunities_stage_name_field: 'opportunity_stage_name'
 opportunities_campaign_id_field: 'opportunity_campaign_id'
 ```
 
-### Picklist Value Configuration
+### Picklist value configuration
 
 Configure picklist values to match your Salesforce org:
 
@@ -291,7 +291,7 @@ salesforce_lead_statuses:
 
 ```
 
-### Schema Configuration
+### Schema configuration
 
 Customize output schemas:
 
@@ -307,7 +307,7 @@ intermediate:
 
 ```
 
-## 🔧 Utility Macros
+## 🔧 Utility macros
 
 The package includes helper macros for data transformations:
 
@@ -318,7 +318,7 @@ The package includes helper macros for data transformations:
 - `clean_currency()` - Numeric/currency field validation
 - `clean_phone()` - Phone number standardization
 
-## 🧪 Data Quality & Testing
+## 🧪 Data quality & testing
 
 Built-in data quality tests include:
 
@@ -336,7 +336,7 @@ dbt test --select stg_salesforce  \# Test staging models only
 
 ```
 
-## 📈 Use Cases
+## 📈 Use cases
 
 Perfect for organizations looking to:
 
@@ -345,6 +345,15 @@ Perfect for organizations looking to:
 - **Understand attribution** across multiple touchpoints
 - **Build executive dashboards** with campaign performance
 - **Track sales pipeline** from marketing source to closed won
+
+## 📚 Additional resources
+
+- **Package capabilities**: Review `analysis/docs/package_capabilities.md` for feature documentation
+- **Field mapping**: Review `analysis/docs/field_mapping.md` for field documentation
+- **Macros documentation**: Review `analysis/docs/macros_documentation.md` for detailed macro usage and examples
+- **Source documentation**: Review `models/staging/salesforce/sources.yml` for field definitions
+- **Model documentation**: Check `schema.yml` files in each layer for model and column documentation
+- **Salesforce to BigQuery integration documentation**: Read this guide [https://windsor.ai/connect/salesforce-google-bigquery-integration/](https://windsor.ai/connect/salesforce-google-bigquery-integration/) for available integration methods
 
 ## 🤝 Contributing
 
