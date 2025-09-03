@@ -259,287 +259,84 @@ dbt test
 
 ## ⚙️ Configuration options
 
-### Database and schema configuration
-
-Configure database, schema, and source settings in your `dbt_project.yml`:
-
-```yaml
-# Configure the package
-models:
-  salesforce_campaign_funnel:
-    +materialized: view
-    +schema: salesforce
-    staging:
-      +schema: staging_salesforce
-      +materialized: view
-    intermediate:
-      +schema: intermediate_salesforce
-      +materialized: view
-    marts:
-      +schema: marts_salesforce
-      +materialized: table
-      +partition_by:
-        field: created_date
-        data_type: date
-      +cluster_by: ["campaign_type", "status"]
-
-# Source configuration
-vars:
-  # Source database and schema
-  salesforce_database: "{{ target.database }}"
-  salesforce_schema: "salesforce_raw"
-  
-  # Source table names (customize if different)
-  salesforce_campaigns_table: "campaigns"
-  salesforce_leads_table: "leads"
-  salesforce_contacts_table: "contacts"
-  salesforce_campaign_members_table: "campaign_members"
-  salesforce_opportunities_table: "opportunities"
-```
-
-### Model enablement and filtering
-
-Control which models run and set data filtering options:
-
-```yaml
-vars:
-  # Enable/disable model layers
-  salesforce_campaign_funnel__enable_staging_models: true
-  salesforce_campaign_funnel__enable_intermediate_models: true  
-  salesforce_campaign_funnel__enable_marts_models: true
-  
-  # Date range filtering for processing
-  salesforce_campaign_funnel__start_date: '2020-01-01'
-  salesforce_campaign_funnel__end_date: null  # null = no end date limit
-  
-  # Data quality filters
-  salesforce_campaign_funnel__exclude_test_campaigns: true
-  salesforce_campaign_funnel__exclude_deleted_records: true
-  salesforce_campaign_funnel__exclude_inactive_campaigns: false
-  
-  # Business logic settings
-  salesforce_campaign_funnel__attribution_lookback_days: 90
-  salesforce_campaign_funnel__target_currency: 'USD'
-  salesforce_campaign_funnel__enable_multi_touch_attribution: true
-```
-
 ### Custom field mapping
 
-Adapt to your Salesforce org schema by overriding field mappings. This is essential when your Salesforce org uses custom field names or different naming conventions than the default Windsor.ai output.
-
-**Default field mapping structure:**
-Each Salesforce object has configurable field mappings that you can override in your `dbt_project.yml`:
+Adapt to your Salesforce org schema by overriding field mappings in `dbt_project.yml`:
 
 ```yaml
 vars:
-  # Campaign field mappings
-  salesforce_campaign_funnel__campaigns_id_field: 'campaign_id'
-  salesforce_campaign_funnel__campaigns_name_field: 'campaign_name'
-  salesforce_campaign_funnel__campaigns_type_field: 'campaign_type'
-  salesforce_campaign_funnel__campaigns_status_field: 'campaign_status'
-  salesforce_campaign_funnel__campaigns_start_date_field: 'campaign_start_date'
-  salesforce_campaign_funnel__campaigns_end_date_field: 'campaign_end_date'
-  salesforce_campaign_funnel__campaigns_actual_cost_field: 'campaign_actual_cost'
-  salesforce_campaign_funnel__campaigns_budgeted_cost_field: 'campaign_budgeted_cost'
-  salesforce_campaign_funnel__campaigns_is_active_field: 'campaign_is_active'
-  salesforce_campaign_funnel__campaigns_created_date_field: 'campaign_created_date'
-  
-  # Lead field mappings
-  salesforce_campaign_funnel__leads_id_field: 'lead_id'
-  salesforce_campaign_funnel__leads_email_field: 'lead_email'
-  salesforce_campaign_funnel__leads_first_name_field: 'lead_first_name'
-  salesforce_campaign_funnel__leads_last_name_field: 'lead_last_name'
-  salesforce_campaign_funnel__leads_company_field: 'lead_company'
-  salesforce_campaign_funnel__leads_status_field: 'lead_status'
-  salesforce_campaign_funnel__leads_source_field: 'lead_lead_source'
-  salesforce_campaign_funnel__leads_created_date_field: 'lead_created_date'
-  salesforce_campaign_funnel__leads_converted_date_field: 'lead_converted_date'
-  salesforce_campaign_funnel__leads_converted_contact_id_field: 'lead_converted_contact_id'
-  salesforce_campaign_funnel__leads_converted_opportunity_id_field: 'lead_converted_opportunity_id'
+# Campaign field mappings
+campaigns_id_field: 'campaign_id'
+campaigns_name_field: 'campaign_name'
+campaigns_type_field: 'campaign_type'
+campaigns_status_field: 'campaign_status'
+campaigns_actual_cost_field: 'campaign_actual_cost'
+campaigns_budgeted_cost_field: 'campaign_budgeted_cost'
+
+# Lead field mappings
+leads_id_field: 'lead_id'
+leads_email_field: 'lead_email'
+leads_status_field: 'lead_status'
+leads_source_field: 'lead_lead_source'
+leads_converted_date_field: 'lead_converted_date'
+leads_converted_contact_id_field: 'lead_converted_contact_id'
+
+# Contact field mappings  
+contacts_id_field: 'contact_id'
+contacts_email_field: 'contact_email'
+contacts_account_id_field: 'contact_accountid'
+contacts_created_date_field: 'contact_createddate'
+
+# Campaign Member field mappings
+campaign_members_id_field: 'campaignmember_id'
+campaign_members_campaign_id_field: 'campaignmember_campaign_id'
+campaign_members_lead_id_field: 'campaignmember_lead_id'
+campaign_members_contact_id_field: 'campaignmember_contact_id'
+
+# Opportunity field mappings
+opportunities_id_field: 'opportunity_id'
+opportunities_name_field: 'opportunity_name'
+opportunities_amount_field: 'opportunity_amount'
+opportunities_stage_name_field: 'opportunity_stage_name'
+opportunities_campaign_id_field: 'opportunity_campaign_id'
 ```
-
-**Example: Customizing for your org**
-If your Salesforce org uses different field names, override them like this:
-
-```yaml
-vars:
-  # Your org uses 'CampaignId' instead of 'campaign_id'
-  salesforce_campaign_funnel__campaigns_id_field: 'CampaignId'
-  salesforce_campaign_funnel__campaigns_name_field: 'CampaignName'
-  
-  # Your org has custom lead fields
-  salesforce_campaign_funnel__leads_id_field: 'LeadId'
-  salesforce_campaign_funnel__leads_email_field: 'EmailAddress'
-  salesforce_campaign_funnel__leads_status_field: 'LeadStatus'
-  
-  # Your org uses custom opportunity fields
-  salesforce_campaign_funnel__opportunities_id_field: 'OpportunityId'
-  salesforce_campaign_funnel__opportunities_name_field: 'OpportunityName'
-```
-
-### Comprehensive field mapping reference
-
-<details>
-<summary><strong>📋 Click to expand complete field mapping options</strong></summary>
-
-#### Campaign field mappings
-```yaml
-vars:
-  salesforce_campaign_funnel__campaigns_id_field: 'campaign_id'
-  salesforce_campaign_funnel__campaigns_name_field: 'campaign_name'
-  salesforce_campaign_funnel__campaigns_type_field: 'campaign_type'
-  salesforce_campaign_funnel__campaigns_status_field: 'campaign_status'
-  salesforce_campaign_funnel__campaigns_start_date_field: 'campaign_start_date'
-  salesforce_campaign_funnel__campaigns_end_date_field: 'campaign_end_date'
-  salesforce_campaign_funnel__campaigns_actual_cost_field: 'campaign_actual_cost'
-  salesforce_campaign_funnel__campaigns_budgeted_cost_field: 'campaign_budgeted_cost'
-  salesforce_campaign_funnel__campaigns_expected_revenue_field: 'campaign_expected_revenue'
-  salesforce_campaign_funnel__campaigns_is_active_field: 'campaign_is_active'
-  salesforce_campaign_funnel__campaigns_created_date_field: 'campaign_created_date'
-  salesforce_campaign_funnel__campaigns_description_field: 'campaign_description'
-```
-
-#### Lead field mappings
-```yaml
-vars:
-  salesforce_campaign_funnel__leads_id_field: 'lead_id'
-  salesforce_campaign_funnel__leads_email_field: 'lead_email'
-  salesforce_campaign_funnel__leads_first_name_field: 'lead_first_name'
-  salesforce_campaign_funnel__leads_last_name_field: 'lead_last_name'
-  salesforce_campaign_funnel__leads_company_field: 'lead_company'
-  salesforce_campaign_funnel__leads_title_field: 'lead_title'
-  salesforce_campaign_funnel__leads_phone_field: 'lead_phone'
-  salesforce_campaign_funnel__leads_status_field: 'lead_status'
-  salesforce_campaign_funnel__leads_source_field: 'lead_lead_source'
-  salesforce_campaign_funnel__leads_created_date_field: 'lead_created_date'
-  salesforce_campaign_funnel__leads_converted_date_field: 'lead_converted_date'
-  salesforce_campaign_funnel__leads_converted_contact_id_field: 'lead_converted_contact_id'
-  salesforce_campaign_funnel__leads_converted_opportunity_id_field: 'lead_converted_opportunity_id'
-  salesforce_campaign_funnel__leads_is_converted_field: 'lead_is_converted'
-```
-
-#### Contact field mappings  
-```yaml
-vars:
-  salesforce_campaign_funnel__contacts_id_field: 'contact_id'
-  salesforce_campaign_funnel__contacts_email_field: 'contact_email'
-  salesforce_campaign_funnel__contacts_first_name_field: 'contact_first_name'
-  salesforce_campaign_funnel__contacts_last_name_field: 'contact_last_name'
-  salesforce_campaign_funnel__contacts_account_id_field: 'contact_accountid'
-  salesforce_campaign_funnel__contacts_phone_field: 'contact_phone'
-  salesforce_campaign_funnel__contacts_title_field: 'contact_title'
-  salesforce_campaign_funnel__contacts_lead_source_field: 'contact_lead_source'
-  salesforce_campaign_funnel__contacts_created_date_field: 'contact_createddate'
-```
-
-#### Campaign Member field mappings
-```yaml
-vars:
-  salesforce_campaign_funnel__campaign_members_id_field: 'campaignmember_id'
-  salesforce_campaign_funnel__campaign_members_campaign_id_field: 'campaignmember_campaign_id'
-  salesforce_campaign_funnel__campaign_members_lead_id_field: 'campaignmember_lead_id'
-  salesforce_campaign_funnel__campaign_members_contact_id_field: 'campaignmember_contact_id'
-  salesforce_campaign_funnel__campaign_members_status_field: 'campaignmember_status'
-  salesforce_campaign_funnel__campaign_members_first_responded_date_field: 'campaignmember_first_responded_date'
-  salesforce_campaign_funnel__campaign_members_created_date_field: 'campaignmember_created_date'
-  salesforce_campaign_funnel__campaign_members_has_responded_field: 'campaignmember_has_responded'
-```
-
-#### Opportunity field mappings
-```yaml
-vars:
-  salesforce_campaign_funnel__opportunities_id_field: 'opportunity_id'
-  salesforce_campaign_funnel__opportunities_name_field: 'opportunity_name'
-  salesforce_campaign_funnel__opportunities_account_id_field: 'opportunity_accountid'
-  salesforce_campaign_funnel__opportunities_amount_field: 'opportunity_amount'
-  salesforce_campaign_funnel__opportunities_close_date_field: 'opportunity_close_date'
-  salesforce_campaign_funnel__opportunities_stage_name_field: 'opportunity_stage_name'
-  salesforce_campaign_funnel__opportunities_probability_field: 'opportunity_probability'
-  salesforce_campaign_funnel__opportunities_campaign_id_field: 'opportunity_campaign_id'
-  salesforce_campaign_funnel__opportunities_created_date_field: 'opportunity_created_date'
-  salesforce_campaign_funnel__opportunities_is_closed_field: 'opportunity_is_closed'
-  salesforce_campaign_funnel__opportunities_is_won_field: 'opportunity_is_won'
-  salesforce_campaign_funnel__opportunities_type_field: 'opportunity_type'
-```
-</details>
 
 ### Picklist value configuration
 
-Configure picklist values to match your Salesforce org's specific values:
+Configure picklist values to match your Salesforce org:
 
-```yaml
-vars:
-  # Campaign types in your org
-  salesforce_campaign_funnel__campaign_types:
-    - 'Email'
-    - 'Webinar'
-    - 'Trade Show'
-    - 'Social Media'
-    - 'Content Marketing'
-    - 'Partner Event'
-    
-  # Lead statuses in your org
-  salesforce_campaign_funnel__lead_statuses:
-    - 'Open - Not Contacted'
-    - 'Working - Contacted' 
-    - 'Qualified'
-    - 'Unqualified'
-    - 'Nurture'
-    
-  # Opportunity stages in your org
-  salesforce_campaign_funnel__opportunity_stages:
-    - 'Prospecting'
-    - 'Qualification'
-    - 'Needs Analysis'
-    - 'Proposal/Price Quote'
-    - 'Negotiation/Review'
-    - 'Closed Won'
-    - 'Closed Lost'
 ```
 
-### Performance configuration
-
-Optimize package performance for your data volume and BigQuery usage:
-
-```yaml
 vars:
-  # Incremental strategies for large datasets
-  salesforce_campaign_funnel__incremental_strategy: 'merge'  # or 'insert_overwrite'
-  salesforce_campaign_funnel__lookback_days: 3  # Days to look back for incremental updates
-  
-  # Resource allocation for large datasets
+salesforce_campaign_types:
+- 'Email'
+- 'Webinar'
+- 'Trade Show'
+- 'Social Media'
+
+salesforce_lead_statuses:
+- 'Open - Not Contacted'
+- 'Working - Contacted'
+- 'Qualified'
+- 'Unqualified'
+
+```
+
+### Schema configuration
+
+Customize output schemas:
+
+```
+
 models:
-  salesforce_campaign_funnel:
-    marts:
-      +labels:
-        team: 'marketing'
-        cost_center: 'analytics'
-      salesforce__campaign_lead_funnel:
-        +partition_by:
-          field: campaign_created_date
-          data_type: date
-          granularity: month
-        +cluster_by: ['campaign_type', 'campaign_status', 'lead_source']
-        +require_partition_filter: true
-      
-      salesforce__campaign_attribution_summary:
-        +partition_by:
-          field: opportunity_close_date
-          data_type: date
-          granularity: month
-        +cluster_by: ['campaign_type', 'opportunity_stage_name']
+salesforce_campaign_funnel:
++schema: my_salesforce_schema
+staging:
++schema: my_staging_schema
+intermediate:
++schema: my_intermediate_schema
+
 ```
-
-**Performance recommendations:**
-
-- **For datasets > 1M rows**: Enable partitioning and clustering as shown above
-- **For historical analysis**: Set `start_date` to limit processing window
-- **For development**: Use `dbt_project.yml` overrides to limit data during development:
-  ```yaml
-  vars:
-    salesforce_campaign_funnel__start_date: '{{ (modules.datetime.date.today() - modules.datetime.timedelta(days=90)).strftime("%Y-%m-%d") }}'
-  ```
-- **For cost optimization**: Consider `insert_overwrite` strategy for marts models if you don't need historical snapshots
 
 ## 🔧 Utility macros
 
