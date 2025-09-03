@@ -1,6 +1,6 @@
 # dbt-BigQuery Package for Salesforce Campaign Funnel Data
 
-A production-ready dbt package that transforms raw Salesforce data integrated with [Windsor.ai](https://windsor.ai/) into clean, analytics ready tables in BigQuery following standardized architecture patterns.
+A production ready dbt package that transforms raw Salesforce data integrated with [Windsor.ai](https://windsor.ai/) into clean, analytics ready tables in BigQuery following standardized architecture patterns.
 
 You can find a complete list of [available Salesforce fields here](https://windsor.ai/data-field/salesforce/).
 
@@ -9,13 +9,13 @@ You can find a complete list of [available Salesforce fields here](https://winds
 
 - **Multi level data modeling**: Structured models for campaigns, leads, contacts, and opportunities
 - **Campaign funnel analytics**: Complete lead → contact → opportunity attribution tracking
-- **Business KPIs out of the box**: Pre-calculated metrics like conversion rates, campaign ROI, and lead progression timing
+- **Business KPIs out of the box**: Pre calculated metrics like conversion rates, campaign ROI, and lead progression timing
 - **Reusable macros**: Modular macros for consistent metric calculation and data transformation
 - **Custom tests**: Built in tests to ensure data quality and prevent duplicates
 - **Type safety**: Safe and consistent casting of strings to numeric types using safe_cast
 - **Performance optimized**: Designed for BigQuery efficiency with native data types and filter logic
 - **Built for Windsor.ai**: Tailored to Windsor.ai's Salesforce schema and sync behavior
-- **Executive dashboards**: Ready-to-use models for business intelligence
+- **Executive dashboards**: Ready to use models for business intelligence
 
 ## What does this dbt package do?
 
@@ -43,7 +43,7 @@ Before using this package, you have to integrate Salesforce data into BigQuery u
 These tables must be created with the field structure defined in the sources.yml file:
 
 **campaigns**
-- Campaign-level info such as names, types, status, and budgets
+- Campaign level info such as names, types, status, and budgets
 - Key fields: id, name, type, status, start_date, end_date, budgeted_cost, actual_cost, is_active
 
 **leads**
@@ -82,7 +82,7 @@ Windsor.ai will stream your Salesforce data to your BigQuery project in minutes.
 | `campaigns` | **Required** | Campaign master data | `id`, `name`, `type`, `status`, `start_date`, `end_date` |
 | `leads` | **Required** | Lead records and conversion tracking | `id`, `email`, `status`, `created_date`, `converted_date` |
 | `contacts` | **Required** | Contact master data | `id`, `email`, `account_id`, `created_date` |
-| `campaign_members` | **Required** | Campaign-lead/contact associations | `id`, `campaign_id`, `lead_id`, `contact_id` |
+| `campaign_members` | **Required** | Campaign lead/contact associations | `id`, `campaign_id`, `lead_id`, `contact_id` |
 | `opportunities` | **Required** | Sales pipeline and revenue data | `id`, `name`, `amount`, `stage_name`, `close_date` |
 
 ## 🚀 Quick start
@@ -197,7 +197,7 @@ This package follows dbt best practices with a threenlayer architecture for scal
 **Optimizations:**
 - BigQuery partitioning and clustering for query performance
 - Executive dashboard ready data structures
-- Pre-calculated KPIs and business metrics
+- Pre calculated KPIs and business metrics
 - Dimensional modeling for BI tool consumption
 
 **Models in this layer:**
@@ -215,7 +215,7 @@ This package follows dbt best practices with a threenlayer architecture for scal
 | `stg_salesforce__opportunities` | Staging | Opportunity pipeline data with stage information and amounts | One row per opportunity |
 | `int_salesforce__lead_journey` | Intermediate | Lead progression tracking with conversion timing and status changes | One row per lead with journey metrics |
 | `int_salesforce__campaign_performance` | Intermediate | Campaign performance metrics including costs, responses, and conversion rates | One row per campaign with aggregated metrics |
-| `int_salesforce__contact_touchpoints` | Intermediate | Contact interaction history across all campaigns and touchpoints | One row per contact-campaign interaction |
+| `int_salesforce__contact_touchpoints` | Intermediate | Contact interaction history across all campaigns and touchpoints | One row per contact campaign interaction |
 | `salesforce__campaign_lead_funnel` | Marts | **Complete funnel analysis** from campaigns through leads to opportunities with conversion metrics | One row per campaign with full funnel data |
 | `salesforce__campaign_attribution_summary` | Marts | **Multi touch attribution reporting** showing campaign influence on pipeline and revenue | One row per campaign with attribution metrics |
 
@@ -351,7 +351,7 @@ The package includes helper macros for data transformations:
 
 ## 🧪 Data quality & testing
 
-Built-in data quality tests include:
+Built in data quality tests include:
 
 - **Uniqueness**: Primary key constraints on all models
 - **Referential integrity**: Foreign key relationships between tables  
@@ -397,4 +397,4 @@ We welcome contributions! Please:
 
 ## 📝 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License see the [LICENSE](LICENSE) file for details.
