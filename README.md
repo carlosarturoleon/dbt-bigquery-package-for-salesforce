@@ -40,29 +40,17 @@ Before using this package, you have to integrate Salesforce data into BigQuery u
 
 ## ✅ Required BigQuery tables
 
-These tables must be created with the field structure defined in the sources.yml file:
+Windsor.ai will stream your Salesforce data to your BigQuery project in minutes. The following tables must be available with the field structure defined in the sources.yml file:
 
-**campaigns**
-- Campaign level info such as names, types, status, and budgets
-- Key fields: id, name, type, status, start_date, end_date, budgeted_cost, actual_cost, is_active
+| **Table** | **Status** | **Description** | **Key Fields** |
+|-----------|------------|-----------------|----------------|
+| `campaigns` | **Required** | Campaign level info such as names, types, status, and budgets | `id`, `name`, `type`, `status`, `start_date`, `end_date`, `budgeted_cost`, `actual_cost`, `is_active` |
+| `leads` | **Required** | Lead records with contact information and source tracking | `id`, `email`, `first_name`, `last_name`, `company`, `status`, `lead_source`, `created_date`, `converted_date`, `converted_contact_id`, `converted_opportunity_id` |
+| `contacts` | **Required** | Contact master data with account relationships | `id`, `email`, `first_name`, `last_name`, `account_id`, `created_date`, `lead_source` |
+| `campaign_members` | **Required** | Campaign membership associations linking campaigns to leads/contacts | `id`, `campaign_id`, `lead_id`, `contact_id`, `status`, `first_responded_date`, `created_date` |
+| `opportunities` | **Required** | Sales opportunity pipeline data with campaign attribution | `id`, `name`, `account_id`, `amount`, `stage_name`, `close_date`, `campaign_id`, `created_date`, `is_closed`, `is_won` |
 
-**leads**
-- Lead records with contact information and source tracking
-- Key fields: id, email, first_name, last_name, company, status, lead_source, created_date, converted_date, converted_contact_id, converted_opportunity_id
-
-**contacts**
-- Contact master data with account relationships
-- Key fields: id, email, first_name, last_name, account_id, created_date, lead_source
-
-**campaign_members**
-- Campaign membership associations linking campaigns to leads/contacts
-- Key fields: id, campaign_id, lead_id, contact_id, status, first_responded_date, created_date
-
-**opportunities**
-- Sales opportunity pipeline data with campaign attribution
-- Key fields: id, name, account_id, amount, stage_name, close_date, campaign_id, created_date, is_closed, is_won
-
-Windsor.ai will stream your Salesforce data to your BigQuery project in minutes. After verifying that the data is present, you're ready to start transforming it using this dbt package.
+After verifying that the data is present, you're ready to start transforming it using this dbt package.
 
 ## 📋 Requirements
 
@@ -72,18 +60,6 @@ Windsor.ai will stream your Salesforce data to your BigQuery project in minutes.
 
 ### Supported data warehouses
 - **BigQuery** (primary support) - All features tested and optimized
-
-### Data prerequisites
-- **Salesforce source data** synced to your data warehouse via [Windsor.ai](https://windsor.ai/)
-- **Source tables** available in your BigQuery project with the following requirements:
-
-| **Table** | **Status** | **Description** | **Key Fields** |
-|-----------|------------|-----------------|----------------|
-| `campaigns` | **Required** | Campaign master data | `id`, `name`, `type`, `status`, `start_date`, `end_date` |
-| `leads` | **Required** | Lead records and conversion tracking | `id`, `email`, `status`, `created_date`, `converted_date` |
-| `contacts` | **Required** | Contact master data | `id`, `email`, `account_id`, `created_date` |
-| `campaign_members` | **Required** | Campaign lead/contact associations | `id`, `campaign_id`, `lead_id`, `contact_id` |
-| `opportunities` | **Required** | Sales pipeline and revenue data | `id`, `name`, `amount`, `stage_name`, `close_date` |
 
 ## 🚀 Quick start
 
